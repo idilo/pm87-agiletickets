@@ -2,6 +2,7 @@ package br.com.caelum.agiletickets.models;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.joda.time.Days;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 
@@ -32,8 +34,8 @@ public class Espetaculo {
 
 	@ManyToOne
 	private Estabelecimento estabelecimento;
-	
-	@OneToMany(mappedBy="espetaculo")
+
+	@OneToMany(mappedBy = "espetaculo")
 	private List<Sessao> sessoes = newArrayList();
 
 	public Long getId() {
@@ -75,59 +77,81 @@ public class Espetaculo {
 	public Estabelecimento getEstabelecimento() {
 		return estabelecimento;
 	}
-	
+
 	public List<Sessao> getSessoes() {
 		return sessoes;
 	}
-	
+
 	/**
-     * Esse metodo eh responsavel por criar sessoes para
-     * o respectivo espetaculo, dado o intervalo de inicio e fim,
-     * mais a periodicidade.
-     * 
-     * O algoritmo funciona da seguinte forma:
-     * - Caso a data de inicio seja 01/01/2010, a data de fim seja 03/01/2010,
-     * e a periodicidade seja DIARIA, o algoritmo cria 3 sessoes, uma 
-     * para cada dia: 01/01, 02/01 e 03/01.
-     * 
-     * - Caso a data de inicio seja 01/01/2010, a data fim seja 31/01/2010,
-     * e a periodicidade seja SEMANAL, o algoritmo cria 5 sessoes, uma
-     * a cada 7 dias: 01/01, 08/01, 15/01, 22/01 e 29/01.
-     * 
-     * Repare que a data da primeira sessao é sempre a data inicial.
-     */
+	 * Esse metodo eh responsavel por criar sessoes para o respectivo
+	 * espetaculo, dado o intervalo de inicio e fim, mais a periodicidade.
+	 * 
+	 * O algoritmo funciona da seguinte forma: - Caso a data de inicio seja
+	 * 01/01/2010, a data de fim seja 03/01/2010, e a periodicidade seja DIARIA,
+	 * o algoritmo cria 3 sessoes, uma para cada dia: 01/01, 02/01 e 03/01.
+	 * 
+	 * - Caso a data de inicio seja 01/01/2010, a data fim seja 31/01/2010, e a
+	 * periodicidade seja SEMANAL, o algoritmo cria 5 sessoes, uma a cada 7
+	 * dias: 01/01, 08/01, 15/01, 22/01 e 29/01.
+	 * 
+	 * Repare que a data da primeira sessao é sempre a data inicial.
+	 */
 	public List<Sessao> criaSessoes(LocalDate inicio, LocalDate fim, LocalTime horario, Periodicidade periodicidade) {
 		// ALUNO: Não apague esse metodo. Esse sim será usado no futuro! ;)
-		return null;
+		List<Sessao> sessoes = new ArrayList<Sessao>();
+		int totalDias = Days.daysBetween(inicio, fim).getDays() + 1;
+
+		if (periodicidade == Periodicidade.DIARIA) {
+
+			for (int i = 0; i < totalDias; i++) {
+				Sessao temp = new Sessao();
+				temp.setEspetaculo(this);
+				temp.setInicio(inicio.plusDays(i).toDateTime(horario));
+
+				sessoes.add(temp);
+			}
+		} else {
+			for (int i = 0; i < totalDias; i += 7) {
+				Sessao temp = new Sessao();
+				temp.setEspetaculo(this);
+				temp.setInicio(inicio.plusDays(i).toDateTime(horario));
+
+				sessoes.add(temp);
+			}
+		}
+
+		this.sessoes = sessoes;
+		return sessoes;
 	}
-	
-	public boolean Vagas(int qtd, int min)
-   {
-       // ALUNO: Não apague esse metodo. Esse sim será usado no futuro! ;)
-       int totDisp = 0;
 
-       for (Sessao s : sessoes)
-       {
-           if (s.getIngressosDisponiveis() < min) return false;
-           totDisp += s.getIngressosDisponiveis();
-       }
+	public boolean Vagas(int qtd, int min) {
+		// ALUNO: Não apague esse metodo. Esse sim será usado no futuro! ;)
+		int totDisp = 0;
 
-       if (totDisp >= qtd) return true;
-       else return false;
-   }
+		for (Sessao s : sessoes) {
+			if (s.getIngressosDisponiveis() < min)
+				return false;
+			totDisp += s.getIngressosDisponiveis();
+		}
 
-   public boolean Vagas(int qtd)
-   {
-       // ALUNO: Não apague esse metodo. Esse sim será usado no futuro! ;)
-       int totDisp = 0;
+		if (totDisp >= qtd)
+			return true;
+		else
+			return false;
+	}
 
-       for (Sessao s : sessoes)
-       {
-           totDisp += s.getIngressosDisponiveis();
-       }
+	public boolean Vagas(int qtd) {
+		// ALUNO: Não apague esse metodo. Esse sim será usado no futuro! ;)
+		int totDisp = 0;
 
-       if (totDisp >= qtd) return true;
-       else return false;
-   }
+		for (Sessao s : sessoes) {
+			totDisp += s.getIngressosDisponiveis();
+		}
+
+		if (totDisp >= qtd)
+			return true;
+		else
+			return false;
+	}
 
 }

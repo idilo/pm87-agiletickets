@@ -3,7 +3,11 @@ package br.com.caelum.agiletickets.models;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
+
+import junit.framework.Assert;
 
 public class EspetaculoTest {
 
@@ -16,6 +20,24 @@ public class EspetaculoTest {
 		ivete.getSessoes().add(sessaoComIngressosSobrando(2));
 
 		assertTrue(ivete.Vagas(5));
+	}
+
+	@Test
+	public void deveRetornar3SessaoDeTotal() {
+		Espetaculo deadpool = new Espetaculo();
+		deadpool.criaSessoes(new LocalDate("2016-08-24"), new LocalDate("2016-08-26"), new LocalTime(20, 0, 0),
+				Periodicidade.DIARIA);
+
+		Assert.assertEquals(3, deadpool.getSessoes().size());
+	}
+	
+	@Test
+	public void sessoesSemanais() {
+		Espetaculo deadpool = new Espetaculo();
+		deadpool.criaSessoes(new LocalDate("2016-08-24"), new LocalDate("2016-09-07"), new LocalTime(20, 0, 0),
+				Periodicidade.SEMANAL);
+
+		Assert.assertEquals(3, deadpool.getSessoes().size());
 	}
 
 	@Test
@@ -80,5 +102,5 @@ public class EspetaculoTest {
 
 		return sessao;
 	}
-	
+
 }
